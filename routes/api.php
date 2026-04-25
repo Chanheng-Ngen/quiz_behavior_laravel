@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\ChangePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
@@ -16,5 +17,6 @@ Route::prefix('auth')->group(function (): void {
     Route::post('/email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail'])
         ->middleware('throttle:6,1')
         ->name('verification.send');
+    Route::post('/change-password', [ChangePasswordController::class, 'changePassword'])->middleware('auth:sanctum', 'throttle:6,1')->name('change-password');
     Route::get('/me', [MeController::class, 'me'])->middleware('auth:sanctum')->name('me');
 });

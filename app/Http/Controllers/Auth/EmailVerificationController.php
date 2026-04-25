@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 class EmailVerificationController extends Controller
 {
-    public function verify(Request $request, $id)
+    public function verify(Request $request, $id) : JsonResponse
     {
         $user = User::findOrFail($id);
 
