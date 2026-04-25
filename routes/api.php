@@ -2,10 +2,12 @@
 
 use App\Http\Controllers\Auth\ChangePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\MeController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function (): void {
@@ -17,6 +19,8 @@ Route::prefix('auth')->group(function (): void {
     Route::post('/email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail'])
         ->middleware('throttle:6,1')
         ->name('verification.send');
-    Route::post('/change-password', [ChangePasswordController::class, 'changePassword'])->middleware('auth:sanctum', 'throttle:6,1')->name('change-password');
+    Route::post('/change-password', [ChangePasswordController::class, 'changePassword'])->middleware('auth:sanctum', 'throttle:6,1')->name('change.password');
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'forgot'])->middleware('throttle:6,1')->name('forgot.password');
+    Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->middleware('throttle:6,1')->name('reset.password');
     Route::get('/me', [MeController::class, 'me'])->middleware('auth:sanctum')->name('me');
 });
