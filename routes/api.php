@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\MeController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\QuizController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function (): void {
@@ -23,4 +24,8 @@ Route::prefix('auth')->group(function (): void {
     Route::post('/forgot-password', [ForgotPasswordController::class, 'forgot'])->middleware('throttle:6,1')->name('forgot.password');
     Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->middleware('throttle:6,1')->name('reset.password');
     Route::get('/me', [MeController::class, 'me'])->middleware('auth:sanctum')->name('me');
+});
+
+Route::middleware('auth:sanctum')->group(function (): void {
+    Route::apiResource('quizzes', QuizController::class);
 });
