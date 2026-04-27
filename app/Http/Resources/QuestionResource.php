@@ -18,7 +18,7 @@ class QuestionResource extends JsonResource
             'id' => $this->id,
             'content' => $this->content,
             'score' => $this->score,
-            // 'quiz_id' => $this->quiz_id,
+            'quiz_id' => $this->quiz_id,
             'question_type' => $this->questionType?->name,
             'option_answers' => $this->whenLoaded('optionAnswers', fn () => $this->optionAnswers->map(fn ($optionAnswer) => [
                 'id' => $optionAnswer->id,

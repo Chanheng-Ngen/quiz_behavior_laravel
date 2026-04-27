@@ -21,7 +21,10 @@ class QuestionController extends Controller
         $questions = Question::with('questionType')->paginate(10);
 
         return response()->json([
+            "message" => "Questions retrieved successfully.",
             'data' => QuestionResource::collection($questions->items()),
+            'created_at' => $questions->first()->created_at,
+            'updated_at' => $questions->first()->updated_at,
             'meta' => [
                 'current_page' => $questions->currentPage(),
                 'last_page' => $questions->lastPage(),
@@ -74,6 +77,8 @@ class QuestionController extends Controller
         return response()->json([
             'message' => 'Questions created successfully.',
             'data' => QuestionResource::collection($questions),
+            'created_at' => $questions->first()->created_at,
+            'updated_at' => $questions->first()->updated_at,
         ], 201);
     }
 

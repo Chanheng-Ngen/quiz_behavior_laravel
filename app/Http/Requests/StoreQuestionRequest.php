@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreQuestionRequest extends FormRequest
 {
@@ -81,6 +82,55 @@ class StoreQuestionRequest extends FormRequest
     }
 
     /**
+     * @return array<int, callable>
+     */
+    public function after(): array
+    {
+        return [
+            function (Validator $validator): void {
+                $questions = $this->input('questions', []);
+
+                if (! is_array($questions)) {
+                    return;
+                }
+
+                foreach ($questions as $index => $question) {
+                    if (! is_array($question)) {
+                        continue;
+                    }
+
+                    if (! $this->requiresAtLeastTwoOptions($question['question_type'] ?? null)) {
+                        continue;
+                    }
+
+                    $optionAnswers = $question['option_answers'] ?? [];
+
+                    if (! is_array($optionAnswers)) {
+                        $validator->errors()->add(
+                            "questions.{$index}.option_answers",
+                            'This question type requires at least two option answers.'
+                        );
+
+                        continue;
+                    }
+
+                    $optionAnswerCount = count(array_filter(
+                        $optionAnswers,
+                        fn (mixed $optionAnswer): bool => is_array($optionAnswer) && filled($optionAnswer['content'] ?? null)
+                    ));
+
+                    if ($optionAnswerCount < 2) {
+                        $validator->errors()->add(
+                            "questions.{$index}.option_answers",
+                            'This question type requires at least two option answers.'
+                        );
+                    }
+                }
+            },
+        ];
+    }
+
+    /**
      * @return array<int, array{content: string, score?: float|int|null, quiz_id: int, question_type: string, option_answers?: array<int, array{content: string, is_correct: bool}>}>
      */
     public function questionPayloads(): array
@@ -89,5 +139,16 @@ class StoreQuestionRequest extends FormRequest
         $validated = $this->validated();
 
         return $validated['questions'];
+    }
+
+    private function requiresAtLeastTwoOptions(mixed $questionType): bool
+    {
+        if (! is_string($questionType)) {
+            return false;
+        }
+
+        $normalizedQuestionType = (string) preg_replace('/[^a-z0-9]/', '', strtolower($questionType));
+
+        return in_array($normalizedQuestionType, ['multiplechoice', 'truefalse'], true);
     }
 }

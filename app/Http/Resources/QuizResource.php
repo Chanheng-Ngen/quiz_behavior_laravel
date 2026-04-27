@@ -20,6 +20,7 @@ class QuizResource extends JsonResource
             'description' => $this->description,
             'set_time_limit' => $this->set_time_limit,
             'creator_id' => $this->creator_id,
+            'questions' => $this->whenLoaded('questions', fn () => QuestionResource::collection($this->questions)),
             // 'creator' => $this->whenLoaded('creator', fn () => [
             //     'id' => $this->creator->id,
             //     'name' => $this->creator->name,
