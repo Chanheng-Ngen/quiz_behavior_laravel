@@ -8,31 +8,44 @@ use App\Http\Resources\QuestionResource;
 use App\Models\OptionAnswer;
 use App\Models\Question;
 use App\Models\QuestionType;
+use App\Models\Quiz;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
 class QuestionController extends Controller
 {
+    public function indexByQuiz(Quiz $quiz): JsonResponse
+    {
+        $questions = $quiz->questions()
+            ->with(['questionType', 'optionAnswers'])
+            ->get();
+
+        return response()->json([
+            'message' => 'Questions retrieved successfully.',
+            'data' => QuestionResource::collection($questions),
+        ]);
+    }
+
     /**
      * Display a listing of the resource.
      */
-    public function index(): JsonResponse
-    {
-        $questions = Question::with('questionType')->paginate(10);
+    // public function index(): JsonResponse
+    // {
+    //     $questions = Question::with('questionType')->paginate(10);
 
-        return response()->json([
-            "message" => "Questions retrieved successfully.",
-            'data' => QuestionResource::collection($questions->items()),
-            'created_at' => $questions->first()->created_at,
-            'updated_at' => $questions->first()->updated_at,
-            'meta' => [
-                'current_page' => $questions->currentPage(),
-                'last_page' => $questions->lastPage(),
-                'per_page' => $questions->perPage(),
-                'total' => $questions->total(),
-            ],
-        ]);
-    }
+    //     return response()->json([
+    //         'message' => 'Questions retrieved successfully.',
+    //         'data' => QuestionResource::collection($questions->items()),
+    //         'created_at' => $questions->first()->created_at,
+    //         'updated_at' => $questions->first()->updated_at,
+    //         'meta' => [
+    //             'current_page' => $questions->currentPage(),
+    //             'last_page' => $questions->lastPage(),
+    //             'per_page' => $questions->perPage(),
+    //             'total' => $questions->total(),
+    //         ],
+    //     ]);
+    // }
 
     /**
      * Store a newly created resource in storage.
@@ -85,19 +98,25 @@ class QuestionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Question $question): QuestionResource
+    public function show(Question $question): JsonResponse
     {
-        return new QuestionResource($question->load('questionType'));
+        return response()->json([
+            'message' => 'Question retrieved successfully.',
+            'data' => new QuestionResource($question->load(['questionType', 'optionAnswers'])),
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateQuestionRequest $request, Question $question): QuestionResource
+    public function update(UpdateQuestionRequest $request, Question $question): JsonResponse
     {
         $question->update($request->validated());
 
-        return new QuestionResource($question->load('questionType'));
+        return  response()->json([
+            'message' => 'Question updated successfully.',
+            'data' => new QuestionResource($question->load(['questionType', 'optionAnswers'])),
+        ]);
     }
 
     /**
