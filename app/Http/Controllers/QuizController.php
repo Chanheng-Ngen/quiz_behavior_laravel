@@ -18,12 +18,11 @@ class QuizController extends Controller
      */
     public function index(): JsonResponse
     {
-        $quizzes = Quiz::query()
-            ->with(['questions.questionType', 'questions.optionAnswers'])
-            ->paginate(10);
+        $quizzes = Quiz::query()->withCount('questions')->paginate(10);
 
         return response()->json([
-            'data' => QuizResource::collection($quizzes->items()),
+            'message' => 'Quizzes retrieved successfully.',
+            'data' => QuizResource::collection($quizzes),
             'meta' => [
                 'current_page' => $quizzes->currentPage(),
                 'last_page' => $quizzes->lastPage(),
@@ -36,34 +35,43 @@ class QuizController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreQuizRequest $request): QuizResource
+    public function store(StoreQuizRequest $request): JsonResponse
     {
         $quiz = Quiz::create([
             ...$request->validated(),
             'creator_id' => $request->user()->id,
         ]);
 
-        return new QuizResource($quiz);
+        return response()->json([
+            'message' => 'Quiz created successfully.',
+            'data' => new QuizResource($quiz),
+        ]);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Quiz $quiz): QuizResource
+    public function show(Quiz $quiz): JsonResponse
     {
-        return new QuizResource($quiz->loadMissing(['questions.questionType', 'questions.optionAnswers']));
+        return response()->json([
+            'message' => 'Quiz retrieved successfully.',
+            'data' => new QuizResource($quiz->loadMissing(['questions.questionType', 'questions.optionAnswers'])),
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateQuizRequest $request, Quiz $quiz): QuizResource
+    public function update(UpdateQuizRequest $request, Quiz $quiz): JsonResponse
     {
         $this->authorize('update', $quiz);
 
         $quiz->update($request->validated());
 
-        return new QuizResource($quiz);
+        return response()->json([
+            'message' => 'Quiz updated successfully.',
+            'data' => new QuizResource($quiz),
+        ]);
     }
 
     /**

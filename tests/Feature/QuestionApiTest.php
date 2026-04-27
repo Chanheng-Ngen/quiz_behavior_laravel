@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\OptionAnswer;
 use App\Models\Question;
 use App\Models\QuestionType;
 use App\Models\Quiz;
@@ -41,6 +42,61 @@ test('can list questions', function () {
             ],
             'meta' => ['current_page', 'last_page', 'per_page', 'total'],
         ]);
+});
+
+test('can list questions by quiz id', function () {
+    $user = User::factory()->create();
+    $quizCreator = User::factory()->create();
+    $questionType = QuestionType::create(['name' => 'Multiple Choice']);
+
+    $quizOne = Quiz::create([
+        'title' => 'Quiz One',
+        'description' => 'Description',
+        'set_time_limit' => 20,
+        'creator_id' => $quizCreator->id,
+    ]);
+
+    $quizTwo = Quiz::create([
+        'title' => 'Quiz Two',
+        'description' => 'Description',
+        'set_time_limit' => 20,
+        'creator_id' => $quizCreator->id,
+    ]);
+
+    $questionOne = Question::create([
+        'content' => 'Question from quiz one',
+        'score' => 5,
+        'quiz_id' => $quizOne->id,
+        'question_type_id' => $questionType->id,
+    ]);
+
+    OptionAnswer::create([
+        'question_id' => $questionOne->id,
+        'content' => 'Option A',
+        'is_correct' => true,
+    ]);
+
+    OptionAnswer::create([
+        'question_id' => $questionOne->id,
+        'content' => 'Option B',
+        'is_correct' => false,
+    ]);
+
+    Question::create([
+        'content' => 'Question from quiz two',
+        'score' => 10,
+        'quiz_id' => $quizTwo->id,
+        'question_type_id' => $questionType->id,
+    ]);
+
+    $response = $this->actingAs($user)->getJson("/api/quizzes/{$quizOne->id}/questions");
+
+    $response->assertSuccessful()
+        ->assertJsonPath('message', 'Questions retrieved successfully.')
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.content', 'Question from quiz one')
+        ->assertJsonPath('data.0.quiz_id', $quizOne->id)
+        ->assertJsonCount(2, 'data.0.option_answers');
 });
 
 test('can create a question', function () {

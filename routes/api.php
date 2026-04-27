@@ -29,6 +29,7 @@ Route::prefix('auth')->group(function (): void {
 
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::apiResource('quizzes', QuizController::class);
+    Route::get('quizzes/{quiz}/questions', [QuestionController::class, 'indexByQuiz']);
     Route::post('quizzes/{quiz}/questions', [QuestionController::class, 'store']);
     Route::apiResource('questions', QuestionController::class)->except('store');
 });
