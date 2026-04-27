@@ -11,4 +11,8 @@ class OptionAnswer extends Model
         'is_correct',
         'question_id',
     ];
+
+    protected $casts = [
+        'is_correct' => 'boolean',
+    ];
 }
