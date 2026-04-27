@@ -57,6 +57,10 @@ test('can create a question', function () {
         'content' => 'Is Laravel a PHP framework?',
         'score' => 5,
         'question_type' => $questionType->name,
+        'option_answers' => [
+            ['content' => 'True', 'is_correct' => true],
+            ['content' => 'False', 'is_correct' => false],
+        ],
     ]);
 
     $response->assertStatus(201)
@@ -72,6 +76,20 @@ test('can create a question', function () {
         'content' => 'Is Laravel a PHP framework?',
         'quiz_id' => $quiz->id,
         'question_type_id' => $questionType->id,
+    ]);
+
+    $questionId = $response->json('data.id');
+
+    $this->assertDatabaseHas('option_answers', [
+        'question_id' => $questionId,
+        'content' => 'True',
+        'is_correct' => 1,
+    ]);
+
+    $this->assertDatabaseHas('option_answers', [
+        'question_id' => $questionId,
+        'content' => 'False',
+        'is_correct' => 0,
     ]);
 });
 
@@ -260,4 +278,50 @@ test('cannot create question with invalid foreign keys', function () {
 
     $response->assertStatus(422)
         ->assertJsonValidationErrors(['questions.0.quiz_id', 'questions.0.question_type']);
+});
+
+test('cannot create multiple choice question with fewer than two options', function () {
+    $quizCreator = User::factory()->create();
+    $quiz = Quiz::create([
+        'title' => 'Validation Quiz',
+        'description' => 'Description',
+        'set_time_limit' => 25,
+        'creator_id' => $quizCreator->id,
+    ]);
+    $questionType = QuestionType::create(['name' => 'Multiple Choice']);
+
+    $response = $this->actingAs(User::factory()->create())->postJson("/api/quizzes/{$quiz->id}/questions", [
+        'content' => 'Pick one option',
+        'score' => 2,
+        'question_type' => $questionType->name,
+        'option_answers' => [
+            ['content' => 'Only option', 'is_correct' => true],
+        ],
+    ]);
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['questions.0.option_answers']);
+});
+
+test('cannot create true false question with fewer than two options', function () {
+    $quizCreator = User::factory()->create();
+    $quiz = Quiz::create([
+        'title' => 'Boolean Quiz',
+        'description' => 'Description',
+        'set_time_limit' => 25,
+        'creator_id' => $quizCreator->id,
+    ]);
+    $questionType = QuestionType::create(['name' => 'True/False']);
+
+    $response = $this->actingAs(User::factory()->create())->postJson("/api/quizzes/{$quiz->id}/questions", [
+        'content' => 'The sky is blue.',
+        'score' => 2,
+        'question_type' => $questionType->name,
+        'option_answers' => [
+            ['content' => 'True', 'is_correct' => true],
+        ],
+    ]);
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['questions.0.option_answers']);
 });

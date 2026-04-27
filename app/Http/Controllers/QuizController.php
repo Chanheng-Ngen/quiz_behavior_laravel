@@ -16,9 +16,11 @@ class QuizController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index() : JsonResponse
+    public function index(): JsonResponse
     {
-        $quizzes = Quiz::paginate(10);
+        $quizzes = Quiz::query()
+            ->with(['questions.questionType', 'questions.optionAnswers'])
+            ->paginate(10);
 
         return response()->json([
             'data' => QuizResource::collection($quizzes->items()),
@@ -27,7 +29,7 @@ class QuizController extends Controller
                 'last_page' => $quizzes->lastPage(),
                 'per_page' => $quizzes->perPage(),
                 'total' => $quizzes->total(),
-            ]
+            ],
         ]);
     }
 
@@ -49,7 +51,7 @@ class QuizController extends Controller
      */
     public function show(Quiz $quiz): QuizResource
     {
-        return new QuizResource($quiz);
+        return new QuizResource($quiz->loadMissing(['questions.questionType', 'questions.optionAnswers']));
     }
 
     /**
@@ -74,7 +76,7 @@ class QuizController extends Controller
         $quiz->delete();
 
         return response()->json([
-            "message" => "Quiz deleted successfully."
+            'message' => 'Quiz deleted successfully.',
         ]);
     }
 }
