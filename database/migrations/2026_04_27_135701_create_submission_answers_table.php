@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('submission_answers', function (Blueprint $table) {
             $table->id();
             $table->text('text_answer')->nullable();
-            $table->foreignId('submission_id')->constrained()->onDelete('cascade');
+            $table->foreignId('participant_id')->constrained()->onDelete('cascade');
             $table->foreignId('question_id')->constrained()->onDelete('cascade');
             $table->foreignId('option_answer_id')->nullable()->constrained()->onDelete('cascade');
             $table->timestamps();

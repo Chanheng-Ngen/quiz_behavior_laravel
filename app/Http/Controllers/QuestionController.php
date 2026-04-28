@@ -88,8 +88,8 @@ class QuestionController extends Controller
         }
 
         return response()->json([
+            'result' => true,
             'message' => 'Questions created successfully.',
-            'data' => QuestionResource::collection($questions),
             'created_at' => $questions->first()->created_at,
             'updated_at' => $questions->first()->updated_at,
         ], 201);
@@ -101,6 +101,7 @@ class QuestionController extends Controller
     public function show(Question $question): JsonResponse
     {
         return response()->json([
+            'result' => true,
             'message' => 'Question retrieved successfully.',
             'data' => new QuestionResource($question->load(['questionType', 'optionAnswers'])),
         ]);
@@ -113,7 +114,8 @@ class QuestionController extends Controller
     {
         $question->update($request->validated());
 
-        return  response()->json([
+        return response()->json([
+            'result' => true,
             'message' => 'Question updated successfully.',
             'data' => new QuestionResource($question->load(['questionType', 'optionAnswers'])),
         ]);
@@ -127,6 +129,7 @@ class QuestionController extends Controller
         $question->delete();
 
         return response()->json([
+            'result' => true,
             'message' => 'Question deleted successfully.',
         ]);
     }
