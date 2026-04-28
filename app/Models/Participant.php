@@ -10,4 +10,9 @@ class Participant extends Model
         'full_name',
         'email',
     ];
+
+    public function cheats()
+    {
+        return $this->hasMany(Cheat::class);
+    }
 }
