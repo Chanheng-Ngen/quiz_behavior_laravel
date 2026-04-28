@@ -84,6 +84,7 @@ class QuizController extends Controller
         $quiz->delete();
 
         return response()->json([
+            'result' => true,
             'message' => 'Quiz deleted successfully.',
         ]);
     }
