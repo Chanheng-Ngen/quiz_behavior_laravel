@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Quiz;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -21,8 +22,9 @@ class QuizFactory extends Factory
             'title' => $this->faker->sentence(3),
             'description' => $this->faker->paragraph(),
             'set_time_limit' => $this->faker->randomElement([30, 45, 60, 90, 120]),
+            'status' => 'active',
             'password' => $this->faker->optional()->password(),
-            'creator_id' => \App\Models\User::factory(),
+            'creator_id' => User::factory(),
         ];
     }
 }

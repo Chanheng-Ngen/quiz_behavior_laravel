@@ -9,13 +9,13 @@ use Illuminate\Support\Facades\Hash;
 
 class ChangePasswordController extends Controller
 {
-    function changePassword(ChangePasswordRequest $request) : JsonResponse
+    public function changePassword(ChangePasswordRequest $request): JsonResponse
     {
         $validated = $request->validated();
 
         $user = $request->user();
 
-        if (!Hash::check($validated['current_password'], $user->password)) {
+        if (! Hash::check($validated['current_password'], $user->password)) {
             return response()->json([
                 'message' => 'Current password is incorrect.',
             ], 400);

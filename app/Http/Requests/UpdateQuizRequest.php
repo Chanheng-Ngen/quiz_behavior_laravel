@@ -23,9 +23,10 @@ class UpdateQuizRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['required', 'required', 'string', 'max:255'],
+            'title' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'set_time_limit' => ['nullable', 'integer', 'min:1'],
+            'status' => ['nullable', 'string', 'in:active,draft,closed'],
         ];
     }
 }

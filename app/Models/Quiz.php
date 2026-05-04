@@ -15,7 +15,12 @@ class Quiz extends Model
         'title',
         'description',
         'set_time_limit',
+        'status',
         'creator_id',
+    ];
+
+    protected $attributes = [
+        'status' => 'active',
     ];
 
     public function creator(): BelongsTo

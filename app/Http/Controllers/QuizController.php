@@ -8,6 +8,7 @@ use App\Http\Resources\QuizResource;
 use App\Models\Quiz;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class QuizController extends Controller
 {
@@ -16,9 +17,21 @@ class QuizController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $quizzes = Quiz::query()->withCount('questions')->paginate(10);
+        $allowedStatuses = ['active', 'draft', 'closed'];
+        $status = $request->string('status')->lower();
+        $search = $request->string('search')->trim();
+
+        $quizzes = Quiz::query()
+            ->withCount('questions')
+            ->when($status->isNotEmpty() && in_array((string) $status, $allowedStatuses, true), function ($query) use ($status) {
+                $query->where('status', (string) $status);
+            })
+            ->when($search->isNotEmpty(), function ($query) use ($search) {
+                $query->where('title', 'like', '%'.$search.'%');
+            })
+            ->paginate(10);
 
         return response()->json([
             'message' => 'Quizzes retrieved successfully.',
