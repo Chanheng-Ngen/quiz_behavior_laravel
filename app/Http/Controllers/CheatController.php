@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 class CheatController extends Controller
 {
     use AuthorizesRequests;
-    
+
     /**
      * Store a newly created cheat in storage.
      */

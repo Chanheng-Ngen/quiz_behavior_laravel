@@ -130,4 +130,3 @@ test('cannot create quiz without title', function () {
     $response->assertStatus(422)
         ->assertJsonValidationErrors(['title']);
 });
-

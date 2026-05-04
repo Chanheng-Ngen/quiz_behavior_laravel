@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Hash;
 
 class ResetPasswordController extends Controller
 {
-
     public function reset(ResetPasswordRequest $request): JsonResponse
     {
         $validated = $request->validated();

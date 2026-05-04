@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class LogoutController extends Controller
 {
-    function logout(Request $request) : JsonResponse
+    public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
 
