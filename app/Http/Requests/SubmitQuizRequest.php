@@ -27,6 +27,7 @@ class SubmitQuizRequest extends FormRequest
             : (is_numeric($quizRouteParam) ? (int) $quizRouteParam : null);
 
         return [
+            'quiz_password' => ['required', 'string', 'size:6'],
             'participant' => ['required', 'array'],
             'participant.full_name' => ['required', 'string', 'max:255'],
             'participant.email' => ['required', 'email', 'max:255'],
@@ -52,6 +53,15 @@ class SubmitQuizRequest extends FormRequest
     {
         return [
             function (Validator $validator): void {
+                $quiz = $this->route('quiz');
+                $submittedPassword = strtoupper(trim((string) $this->input('quiz_password')));
+
+                if ($quiz instanceof Quiz && $submittedPassword !== (string) $quiz->password) {
+                    $validator->errors()->add('quiz_password', 'The quiz password is incorrect.');
+
+                    return;
+                }
+
                 $answers = $this->input('answers', []);
 
                 if (! is_array($answers)) {

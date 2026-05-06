@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\Quiz;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends Factory<Quiz>
@@ -23,7 +24,7 @@ class QuizFactory extends Factory
             'description' => $this->faker->paragraph(),
             'set_time_limit' => $this->faker->randomElement([30, 45, 60, 90, 120]),
             'status' => 'active',
-            'password' => $this->faker->optional()->password(),
+            'password' => Str::upper(Str::random(6)),
             'creator_id' => User::factory(),
         ];
     }
