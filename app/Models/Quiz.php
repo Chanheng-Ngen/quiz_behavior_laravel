@@ -15,6 +15,7 @@ class Quiz extends Model
         'title',
         'description',
         'set_time_limit',
+        'password',
         'status',
         'creator_id',
     ];

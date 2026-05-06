@@ -37,7 +37,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('quizzes/{quiz}/cheats/summary', [CheatController::class, 'summary']);
     Route::get('participants/{participant}/cheats', [CheatController::class, 'indexByParticipant']);
 });
-
+Route::get('quizzes/join-quiz/{password}', [QuizController::class, 'findQuizByPassword']);
 Route::post('quizzes/{quiz}/submit', [ParticipantQuizController::class, 'submit'])
     ->middleware('throttle:30,1');
 Route::get('quizzes/{quiz}/submission', [ParticipantQuizController::class, 'showSubmission']);

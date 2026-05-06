@@ -9,6 +9,7 @@ use App\Models\Quiz;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class QuizController extends Controller
 {
@@ -53,6 +54,7 @@ class QuizController extends Controller
         $quiz = Quiz::create([
             ...$request->validated(),
             'creator_id' => $request->user()->id,
+            'password' => Str::upper(Str::random(6)),
         ]);
 
         return response()->json([
@@ -68,7 +70,31 @@ class QuizController extends Controller
     {
         return response()->json([
             'message' => 'Quiz retrieved successfully.',
-            'data' => new QuizResource($quiz->loadMissing(['questions.questionType', 'questions.optionAnswers'])),
+            'data' => new QuizResource($quiz->loadCount('questions')),
+        ]);
+    }
+
+    // Find quiz by password for participants to join
+    public function findQuizByPassword(Request $request): JsonResponse
+    {
+        $password = $request->string('password')->upper();
+
+        $quiz = Quiz::query()
+            ->where('password', $password)
+            ->withCount('questions')
+            ->first();
+
+        if ($quiz === null) {
+            return response()->json([
+                'result' => false,
+                'message' => 'No quiz found with the provided password.',
+            ], 404);
+        }
+
+        return response()->json([
+            'result' => true,
+            'message' => 'Quiz found successfully.',
+            'data' => new QuizResource($quiz),
         ]);
     }
 

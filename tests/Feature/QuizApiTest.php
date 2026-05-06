@@ -26,7 +26,6 @@ test('can create a quiz', function () {
         'title' => 'Test Quiz',
         'description' => 'Test Description',
         'set_time_limit' => 60,
-        'password' => 'secret123',
     ]);
 
     $response->assertStatus(201)
@@ -38,10 +37,13 @@ test('can create a quiz', function () {
                 'title' => 'Test Quiz',
                 'description' => 'Test Description',
                 'set_time_limit' => 60,
-                'password' => 'secret123',
                 'creator_id' => $user->id,
             ],
         ]);
+
+    $password = $response->json('data.password');
+
+    expect($password)->toBeString()->toHaveLength(6);
 
     $this->assertDatabaseHas('quizzes', [
         'title' => 'Test Quiz',
