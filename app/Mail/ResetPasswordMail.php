@@ -30,7 +30,7 @@ class ResetPasswordMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            text: 'emails.reset-password-plain',
+            markdown: 'emails.reset-password',
         );
     }
 }
