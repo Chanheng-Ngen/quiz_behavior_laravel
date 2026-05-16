@@ -41,6 +41,29 @@ php artisan boost:install
 
 Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
 
+## Docker Setup
+
+Run the project with Docker:
+
+```bash
+docker compose up -d --build
+docker compose exec app composer install
+docker compose exec app cp .env.example .env
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate
+```
+
+App URL: http://localhost:8000
+
+Useful commands:
+
+```bash
+docker compose exec app php artisan test
+docker compose exec app php artisan optimize:clear
+docker compose down
+docker compose down -v
+```
+
 ## Contributing
 
 Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
