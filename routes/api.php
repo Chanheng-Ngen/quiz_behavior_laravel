@@ -17,6 +17,12 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('auth')->group(function (): void {
     Route::post('/register', [RegisterController::class, 'register'])->name('register');
     Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:6,1')->name('login');
+    Route::get('/google/redirect', [LoginController::class, 'googleRedirect'])
+        ->middleware('throttle:6,1')
+        ->name('google.redirect');
+    Route::get('/google/callback', [LoginController::class, 'googleCallback'])
+        ->middleware('throttle:6,1')
+        ->name('google.callback');
     Route::delete('/logout', [LogoutController::class, 'logout'])->middleware('auth:sanctum')->name('logout');
     Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
         ->middleware(['signed'])->name('verification.verify');
