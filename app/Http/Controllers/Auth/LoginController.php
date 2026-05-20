@@ -7,9 +7,77 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Laravel\Socialite\Facades\Socialite;
 
 class LoginController extends Controller
 {
+    public function googleRedirect(): JsonResponse
+    {
+        $url = Socialite::driver('google')->stateless()->redirect()->getTargetUrl();
+
+        return response()->json([
+            'url' => $url,
+        ]);
+    }
+
+    public function googleCallback(): JsonResponse
+    {
+        $googleUser = Socialite::driver('google')->stateless()->user();
+        $email = $googleUser->getEmail();
+
+        if (! $email) {
+            return response()->json([
+                'message' => 'Google account does not have an email address.',
+            ], 422);
+        }
+
+        $user = User::where('google_id', $googleUser->getId())
+            ->orWhere('email', $email)
+            ->first();
+
+        $googleName = $googleUser->getName() ?? $googleUser->getNickname() ?? $email;
+
+        if (! $user) {
+            $user = User::create([
+                'name' => $googleName,
+                'email' => $email,
+                'password' => Hash::make(Str::random(40)),
+                'google_id' => $googleUser->getId(),
+                'provider' => 'google',
+                'avatar' => $googleUser->getAvatar(),
+            ]);
+
+            $user->forceFill([
+                'email_verified_at' => now(),
+            ])->save();
+        } else {
+            $updates = [
+                'google_id' => $googleUser->getId(),
+                'provider' => 'google',
+                'avatar' => $googleUser->getAvatar(),
+            ];
+
+            if (! $user->name) {
+                $updates['name'] = $googleName;
+            }
+
+            if (! $user->hasVerifiedEmail()) {
+                $updates['email_verified_at'] = now();
+            }
+
+            $user->forceFill($updates)->save();
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Logged in successfully.',
+            'token' => $token,
+            'data' => $user,
+        ]);
+    }
+
     public function login(LoginRequest $request): JsonResponse
     {
         $validated = $request->validated();
