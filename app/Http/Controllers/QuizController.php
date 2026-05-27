@@ -23,8 +23,10 @@ class QuizController extends Controller
         $allowedStatuses = ['active', 'draft', 'closed'];
         $status = $request->string('status')->lower();
         $search = $request->string('search')->trim();
+        $user = $request->user();
 
         $quizzes = Quiz::query()
+            ->where('creator_id', $user->id)
             ->withCount('questions')
             ->when($status->isNotEmpty() && in_array((string) $status, $allowedStatuses, true), function ($query) use ($status) {
                 $query->where('status', (string) $status);
