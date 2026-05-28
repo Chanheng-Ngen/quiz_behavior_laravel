@@ -17,7 +17,7 @@ class ResetPasswordController extends Controller
     public function redirectToFrontend(Request $request, $token): RedirectResponse
     {
         $email = $request->query('email');
-        $frontendUrl = env('VITE_FRONTEND_URL') . '/reset-password'
+        $frontendUrl = config('app.frontend_url') . '/reset-password'
             . '?token=' . $token
             . '&email=' . urlencode($email);
 
