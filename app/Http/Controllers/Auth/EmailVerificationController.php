@@ -19,18 +19,18 @@ class EmailVerificationController extends Controller
             sha1($user->getEmailForVerification()),
             $request->route('hash')
         )) {
-            return redirect(env('VITE_FRONTEND_URL') . '/email-verification?status=invalid-hash');
+            return redirect(config('app.frontend_url') . '/email-verification?status=invalid-hash');
         }
 
         if (! $request->hasValidSignature()) {
-            return redirect(env('VITE_FRONTEND_URL') . '/email-verification?status=expired');
+            return redirect( config('app.frontend_url') . '/email-verification?status=expired');
         }
 
         if (! $user->hasVerifiedEmail()) {
             $user->markEmailAsVerified();
         }
 
-        return redirect(env('VITE_FRONTEND_URL') . '/email-verification?status=success');
+        return redirect( config('app.frontend_url') . '/auth');
     }
 
     public function sendVerificationEmail(SendEmailVerificationRequest $request): JsonResponse
