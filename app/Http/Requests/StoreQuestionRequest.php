@@ -17,7 +17,7 @@ class StoreQuestionRequest extends FormRequest
             ? $incomingQuestions
             : [$this->all()];
 
-        $quizRouteParam = $this->route('quiz');
+        $quizRouteParam = $this->route('quiz_id');
         $quizIdFromRoute = is_object($quizRouteParam)
             ? (int) $quizRouteParam->id
             : (is_numeric($quizRouteParam) ? (int) $quizRouteParam : null);
@@ -71,10 +71,10 @@ class StoreQuestionRequest extends FormRequest
     {
         return [
             'questions' => ['required', 'array', 'min:1'],
+            'questions.*.quiz_id' => ['required', 'integer', 'exists:quizzes,id'],
             'questions.*.content' => ['required', 'string'],
             'questions.*.score' => ['nullable', 'numeric', 'min:0'],
-            'questions.*.quiz_id' => ['required', 'integer', Rule::exists('quizzes', 'id')],
-            'questions.*.question_type' => ['required', 'string', Rule::exists('question_types', 'name')],
+            'questions.*.question_type' => ['required', 'string', Rule::exists('question_types', 'code')],
             'questions.*.option_answers' => ['sometimes', 'array', 'min:1'],
             'questions.*.option_answers.*.content' => ['required_with:questions.*.option_answers', 'string'],
             'questions.*.option_answers.*.is_correct' => ['required_with:questions.*.option_answers', 'boolean'],
@@ -131,11 +131,11 @@ class StoreQuestionRequest extends FormRequest
     }
 
     /**
-     * @return array<int, array{content: string, score?: float|int|null, quiz_id: int, question_type: string, option_answers?: array<int, array{content: string, is_correct: bool}>}>
+     * @return array<int, array{content: string, score?: float|int|null, quiz_id?: int|null, question_type: string, option_answers?: array<int, array{content: string, is_correct: bool}>}>
      */
     public function questionPayloads(): array
     {
-        /** @var array{questions: array<int, array{content: string, score?: float|int|null, quiz_id: int, question_type: string, option_answers?: array<int, array{content: string, is_correct: bool}>}>} $validated */
+        /** @var array{questions: array<int, array{content: string, score?: float|int|null, quiz_id?: int|null, question_type: string, option_answers?: array<int, array{content: string, is_correct: bool}>}>} $validated */
         $validated = $this->validated();
 
         return $validated['questions'];
@@ -147,8 +147,8 @@ class StoreQuestionRequest extends FormRequest
             return false;
         }
 
-        $normalizedQuestionType = (string) preg_replace('/[^a-z0-9]/', '', strtolower($questionType));
+        $normalizedQuestionType = strtoupper(trim($questionType));
 
-        return in_array($normalizedQuestionType, ['multiplechoice', 'truefalse'], true);
+        return in_array($normalizedQuestionType, ['MC', 'TF'], true);
     }
 }

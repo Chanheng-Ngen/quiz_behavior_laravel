@@ -10,7 +10,7 @@
     </p>
 
     <div style="text-align: center; margin: 30px 0;">
-        <a href="{{ url('/api/auth/reset-password?token=' . $token . '&email=' . $user->email) }}" 
+        <a href="{{ route('password.reset', ['token' => $token, 'email' => $user->email]) }}" 
            style="display: inline-block; padding: 12px 28px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
             Reset Password
         </a>
@@ -20,7 +20,7 @@
         If the button above doesn't work, copy and paste this link in your browser:
     </p>
     <p style="word-break: break-all; background-color: #f3f4f6; padding: 10px; border-radius: 4px; font-size: 13px; color: #555;">
-        {{ url('/api/auth/reset-password?token=' . $token . '&email=' . $user->email) }}
+        {{ route('password.reset', ['token' => $token, 'email' => $user->email]) }}
     </p>
 
     <p style="line-height: 1.6; margin-top: 20px; color: #666; font-size: 13px;">

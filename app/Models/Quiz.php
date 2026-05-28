@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Enums\QuizStatus;
 
 class Quiz extends Model
 {
@@ -22,6 +23,10 @@ class Quiz extends Model
 
     protected $attributes = [
         'status' => 'active',
+    ];
+
+    protected $casts = [
+        'status' => QuizStatus::class
     ];
 
     public function creator(): BelongsTo

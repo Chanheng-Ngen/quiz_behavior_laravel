@@ -72,6 +72,7 @@ class LoginController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
+            'result' => true,
             'message' => 'Logged in successfully.',
             'token' => $token,
             'data' => $user,
@@ -99,6 +100,7 @@ class LoginController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
+            'result' => true,
             'message' => 'Logged in successfully.',
             'token' => $token,
             'data' => $user,
