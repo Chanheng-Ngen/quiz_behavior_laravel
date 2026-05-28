@@ -14,13 +14,14 @@ use Illuminate\Support\Facades\DB;
 
 class QuestionController extends Controller
 {
-    public function indexByQuiz(Quiz $quiz): JsonResponse
+    public function indexByQuiz(Quiz $quiz_id): JsonResponse
     {
-        $questions = $quiz->questions()
+        $questions = $quiz_id->questions()
             ->with(['questionType', 'optionAnswers'])
             ->get();
 
         return response()->json([
+            'result' => true,
             'message' => 'Questions retrieved successfully.',
             'data' => QuestionResource::collection($questions),
         ]);
@@ -55,8 +56,8 @@ class QuestionController extends Controller
         $payloads = $request->questionPayloads();
 
         $typeMap = QuestionType::query()
-            ->whereIn('name', collect($payloads)->pluck('question_type')->unique()->all())
-            ->pluck('id', 'name');
+            ->whereIn('code', collect($payloads)->pluck('question_type')->unique()->all())
+            ->pluck('id', 'code');
 
         $questions = DB::transaction(function () use ($payloads, $typeMap) {
             $createdQuestions = [];

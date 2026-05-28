@@ -4,6 +4,8 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
+use App\Enums\QuizStatus;
 
 class StoreQuizRequest extends FormRequest
 {
@@ -26,7 +28,7 @@ class StoreQuizRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'set_time_limit' => ['nullable', 'integer', 'min:1'],
-            'status' => ['nullable', 'string', 'in:active,draft,closed'],
+            'status' => ['nullable', 'string', new Enum(QuizStatus::class)],
         ];
     }
 }

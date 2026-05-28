@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('quizzes', function (Blueprint $table) {
-            $table->enum('status', ['active', 'inactive'])->default('active')->index();
+        Schema::table('question_types', function (Blueprint $table) {
+            $table->string('code')->unique()->after('name');
         });
     }
 
@@ -21,9 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('quizzes', function (Blueprint $table) {
-            $table->dropIndex(['status']);
-            $table->dropColumn('status');
+        Schema::table('question_types', function (Blueprint $table) {
+            $table->dropColumn('code');
         });
     }
 };

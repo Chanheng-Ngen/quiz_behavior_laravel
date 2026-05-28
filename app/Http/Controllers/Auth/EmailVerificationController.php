@@ -7,10 +7,11 @@ use App\Http\Requests\Auth\SendEmailVerificationRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 
 class EmailVerificationController extends Controller
 {
-    public function verify(Request $request, $id): JsonResponse
+    public function verify(Request $request, $id): RedirectResponse
     {
         $user = User::findOrFail($id);
 
@@ -18,20 +19,18 @@ class EmailVerificationController extends Controller
             sha1($user->getEmailForVerification()),
             $request->route('hash')
         )) {
-            return response()->json(['message' => 'Invalid hash'], 403);
+            return redirect(env('VITE_FRONTEND_URL') . '/email-verification?status=invalid-hash');
         }
 
         if (! $request->hasValidSignature()) {
-            return response()->json(['message' => 'Invalid or expired link'], 403);
+            return redirect(env('VITE_FRONTEND_URL') . '/email-verification?status=expired');
         }
 
         if (! $user->hasVerifiedEmail()) {
             $user->markEmailAsVerified();
         }
 
-        return response()->json([
-            'message' => 'Email verified successfully',
-        ]);
+        return redirect(env('VITE_FRONTEND_URL') . '/email-verification?status=success');
     }
 
     public function sendVerificationEmail(SendEmailVerificationRequest $request): JsonResponse

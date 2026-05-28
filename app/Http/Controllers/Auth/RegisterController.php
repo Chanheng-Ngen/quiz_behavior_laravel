@@ -24,6 +24,7 @@ class RegisterController extends Controller
         event(new Registered($user));
 
         return response()->json([
+            'result' => true,
             'message' => 'Registered successfully. Verification email sent.',
             'data' => $user,
         ], 201);

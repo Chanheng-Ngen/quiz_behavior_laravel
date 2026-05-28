@@ -25,6 +25,7 @@ class ChangePasswordController extends Controller
         $user->save();
 
         return response()->json([
+            'result' => true,
             'message' => 'Password changed successfully.',
         ]);
     }

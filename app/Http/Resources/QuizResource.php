@@ -21,7 +21,7 @@ class QuizResource extends JsonResource
             'set_time_limit' => $this->set_time_limit,
             'password' => $this->password,
             'status' => $this->status,
-            'creator_id' => $this->creator_id,
+            // 'creator_id' => $this->creator_id,
             'questions_count' => $this->whenCounted('questions'),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
