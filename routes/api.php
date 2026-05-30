@@ -12,7 +12,7 @@ use App\Http\Controllers\CheatController;
 use App\Http\Controllers\ParticipantQuizController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\QuizController;
-use App\Http\Controllers\UploadImageController;
+use App\Http\Controllers\ImageController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function (): void {
@@ -42,7 +42,9 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('quizzes/questions/{quiz_id}', [QuestionController::class, 'indexByQuiz']);
     Route::post('quizzes/questions/{quiz_id}', [QuestionController::class, 'store']);
     Route::apiResource('questions', QuestionController::class)->except('store');
-    Route::post('questions/images/{question_id}', [UploadImageController::class, 'uploadImage']);
+    Route::post('questions/images/{question_id}', [ImageController::class, 'uploadImage']);
+    Route::post('questions/{question_id}/images/{id}', [ImageController::class, 'updateImage']);  
+    Route::delete('questions/{question_id}/images/{id}', [ImageController::class, 'deleteImage']);
     Route::get('quizzes/cheats/summary/{quiz_id}', [CheatController::class, 'summary']);
     Route::get('participants/cheats/{participant_id}', [CheatController::class, 'indexByParticipant']);
 });

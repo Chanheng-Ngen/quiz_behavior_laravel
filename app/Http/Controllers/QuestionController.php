@@ -16,8 +16,9 @@ class QuestionController extends Controller
 {
     public function indexByQuiz(Quiz $quiz_id): JsonResponse
     {
+        $this->authorize('view', $quiz_id);
         $questions = $quiz_id->questions()
-            ->with(['questionType', 'optionAnswers'])
+            ->with(['questionType', 'optionAnswers', 'images'])
             ->get();
 
         return response()->json([
@@ -101,10 +102,11 @@ class QuestionController extends Controller
      */
     public function show(Question $question): JsonResponse
     {
+        $this->authorize('view', $question);
         return response()->json([
             'result' => true,
             'message' => 'Question retrieved successfully.',
-            'data' => new QuestionResource($question->load(['questionType', 'optionAnswers'])),
+            'data' => new QuestionResource($question->load(['questionType', 'optionAnswers', 'images'])),
         ]);
     }
 
@@ -113,6 +115,7 @@ class QuestionController extends Controller
      */
     public function update(UpdateQuestionRequest $request, Question $question): JsonResponse
     {
+        $this->authorize('update', $question);
         $question->update($request->validated());
 
         return response()->json([
@@ -127,6 +130,7 @@ class QuestionController extends Controller
      */
     public function destroy(Question $question): JsonResponse
     {
+        $this->authorize('delete', $question);
         $question->delete();
 
         return response()->json([
