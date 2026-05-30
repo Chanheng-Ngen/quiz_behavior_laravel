@@ -13,7 +13,10 @@ class UpdateQuestionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        /** @var Question $question */
+        $question = $this->route('question');
+
+        return $question->quiz->creator_id === $this->user()->id;
     }
 
     /**

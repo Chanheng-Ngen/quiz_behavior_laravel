@@ -11,14 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
+
         Schema::table('quizzes', function (Blueprint $table) {
             $table->dropColumn('status');
         });
 
         Schema::table('quizzes', function (Blueprint $table) {
             $table->enum('status', ['active', 'draft', 'closed'])
-                  ->default('active')
-                  ->index();
+                ->default('active')
+                ->index();
         });
     }
 
@@ -28,13 +29,12 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('quizzes', function (Blueprint $table) {
-            $table->dropColumn('status');
-        });
 
-        Schema::table('quizzes', function (Blueprint $table) {
+            $table->dropColumn('status');
+
             $table->enum('status', ['active', 'inactive'])
-                  ->default('active')
-                  ->index();
+                ->default('active')
+                ->index();
         });
     }
 };

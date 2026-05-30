@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Quiz;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -61,7 +62,19 @@ class StoreQuestionRequest extends FormRequest
 
     public function authorize(): bool
     {
-        return true;
+        $quizRouteParam = $this->route('quiz_id');
+
+        $quizId = is_object($quizRouteParam)
+            ? $quizRouteParam->id
+            : $quizRouteParam;
+
+        $quiz = Quiz::find($quizId);
+
+        if (!$quiz) {
+            return false;
+        }
+
+        return $quiz->creator_id === $this->user()->id;
     }
 
     /**
@@ -116,7 +129,7 @@ class StoreQuestionRequest extends FormRequest
 
                     $optionAnswerCount = count(array_filter(
                         $optionAnswers,
-                        fn (mixed $optionAnswer): bool => is_array($optionAnswer) && filled($optionAnswer['content'] ?? null)
+                        fn(mixed $optionAnswer): bool => is_array($optionAnswer) && filled($optionAnswer['content'] ?? null)
                     ));
 
                     if ($optionAnswerCount < 2) {

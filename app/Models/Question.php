@@ -24,4 +24,14 @@ class Question extends Model
     {
         return $this->belongsTo(QuestionType::class);
     }
+
+    public function quiz(): BelongsTo
+    {
+        return $this->belongsTo(Quiz::class);
+    }
+
+    public function images()
+    {
+        return $this->hasMany(Image::class);
+    }
 }

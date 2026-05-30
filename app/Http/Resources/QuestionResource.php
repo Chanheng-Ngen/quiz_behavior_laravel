@@ -17,10 +17,14 @@ class QuestionResource extends JsonResource
         return [
             'id' => $this->id,
             'content' => $this->content,
+            'images' => $this->whenLoaded('images', fn() => $this->images->map(fn($image) => [
+                'id' => $image->id,
+                'url' => $image->url,
+            ])->values()),
             'score' => $this->score,
             // 'quiz_id' => $this->quiz_id,
             'question_type' => $this->questionType?->name,
-            'option_answers' => $this->whenLoaded('optionAnswers', fn () => $this->optionAnswers->map(fn ($optionAnswer) => [
+            'option_answers' => $this->whenLoaded('optionAnswers', fn() => $this->optionAnswers->map(fn($optionAnswer) => [
                 'id' => $optionAnswer->id,
                 'content' => $optionAnswer->content,
                 'is_correct' => $optionAnswer->is_correct,
