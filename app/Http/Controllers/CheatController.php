@@ -23,7 +23,7 @@ class CheatController extends Controller
         $cheat = Cheat::create($request->validated());
 
         return response()->json([
-            'message' => 'Cheat created successfully.',
+            'message'    => 'Cheat created successfully.',
             'cheat_type' => $cheat->name,
         ], 201);
     }
@@ -40,6 +40,7 @@ class CheatController extends Controller
             ->pluck('submission_answers.participant_id');
 
         $cheatsData = Cheat::query()
+            ->where('quiz_id', $quiz->id)
             ->whereIn('participant_id', $participantIds)
             ->with('participant')
             ->get()
@@ -49,42 +50,40 @@ class CheatController extends Controller
             $participant = $cheats->first()->participant;
 
             return [
-                'participant_id' => $participantId,
+                'result'           => true,
+                'participant_id'   => $participantId,
                 'participant_name' => $participant->full_name,
-                'email' => $participant->email,
-                'cheat_count' => $cheats->count(),
+                'email'            => $participant->email,
+                'cheat_count'      => $cheats->count(),
             ];
         });
 
         return response()->json([
-            'message' => 'Cheat summary retrieved successfully.',
-            'quiz_id' => $quiz->id,
+            'result'                         => true,
+            'message'                        => 'Cheat summary retrieved successfully.',
+            'quiz_id'                        => $quiz->id,
             'total_participants_with_cheats' => $summary->count(),
-            'data' => $summary->values(),
+            'data'                           => $summary->values(),
         ]);
     }
 
     /**
      * Get cheats for a specific participant.
      */
-    public function indexByParticipant(Participant $participant): JsonResponse
+    public function indexByParticipant(Quiz $quiz, Participant $participant): JsonResponse
     {
         $cheats = Cheat::query()
+            ->where('quiz_id', $quiz->id)
             ->where('participant_id', $participant->id)
-            ->with('participant')
-            ->paginate(10);
+            ->get();
 
         return response()->json([
-            'message' => 'Participant cheats retrieved successfully.',
-            'participant_id' => $participant->id,
+            'result'           => true,
+            'message'          => 'Participant cheats retrieved successfully.',
+            'quiz_id'          => $quiz->id,
+            'participant_id'   => $participant->id,
             'participant_name' => $participant->full_name,
-            'data' => CheatResource::collection($cheats),
-            'meta' => [
-                'current_page' => $cheats->currentPage(),
-                'last_page' => $cheats->lastPage(),
-                'per_page' => $cheats->perPage(),
-                'total' => $cheats->total(),
-            ],
+            'data'             => CheatResource::collection($cheats)
         ]);
     }
 }

@@ -43,13 +43,14 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('quizzes/questions/{quiz_id}', [QuestionController::class, 'store']);
     Route::apiResource('questions', QuestionController::class)->except('store');
     Route::post('questions/images/{question_id}', [ImageController::class, 'uploadImage']);
-    Route::post('questions/{question_id}/images/{id}', [ImageController::class, 'updateImage']);  
+    Route::post('questions/{question_id}/images/{id}', [ImageController::class, 'updateImage']);
     Route::delete('questions/{question_id}/images/{id}', [ImageController::class, 'deleteImage']);
-    Route::get('quizzes/cheats/summary/{quiz_id}', [CheatController::class, 'summary']);
-    Route::get('participants/cheats/{participant_id}', [CheatController::class, 'indexByParticipant']);
+    Route::get('quizzes/{quiz}/cheats/summary', [CheatController::class, 'summary']);
+    Route::get('quizzes/{quiz}/participants/{participant}/cheats', [CheatController::class, 'indexByParticipant']);
 });
 Route::get('quizzes/join-quiz/{password_quiz}', [QuizController::class, 'findQuizByPassword']);
-Route::post('quizzes/submit/{quiz_id}', [ParticipantQuizController::class, 'submit'])
+Route::post('quizzes/{quiz}/submit', [ParticipantQuizController::class, 'submit'])
     ->middleware('throttle:30,1');
-Route::get('quizzes/submission/{quiz_id}', [ParticipantQuizController::class, 'showSubmission']);
-Route::post('cheats', [CheatController::class, 'store']);
+Route::get('quizzes/{quiz}/submissions/{participantId}', [ParticipantQuizController::class, 'showSubmission']);
+Route::post('quizzes/{quiz}/cheats', [CheatController::class, 'store']);
+    
