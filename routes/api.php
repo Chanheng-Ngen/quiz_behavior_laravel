@@ -53,3 +53,4 @@ Route::post('quizzes/{quiz}/submit', [ParticipantQuizController::class, 'submit'
     ->middleware('throttle:30,1');
 Route::get('quizzes/{quiz}/submissions/{participantId}', [ParticipantQuizController::class, 'showSubmission']);
 Route::post('quizzes/{quiz}/cheats', [CheatController::class, 'store']);
+    
