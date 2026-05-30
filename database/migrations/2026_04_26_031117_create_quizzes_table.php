@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->integer('set_time_limit')->nullable();
             $table->foreignId('creator_id')->constrained('users')->onDelete('cascade');
+            $table->enum('status', ['active', 'draft', 'closed'])->default('active')->index();
             $table->timestamps();
         });
     }

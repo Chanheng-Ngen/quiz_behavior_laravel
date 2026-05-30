@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('cheats', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->foreignId('quiz_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('participant_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\QuizStatus;
 use App\Models\OptionAnswer;
 use App\Models\Quiz;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -21,28 +22,22 @@ class SubmitQuizRequest extends FormRequest
      */
     public function rules(): array
     {
-        $quizRouteParam = $this->route('quiz');
-        $quizId = $quizRouteParam instanceof Quiz
-            ? $quizRouteParam->id
-            : (is_numeric($quizRouteParam) ? (int) $quizRouteParam : null);
+        /** @var Quiz $quiz */
+        $quiz = $this->route('quiz');
 
         return [
-            'quiz_password' => ['required', 'string', 'size:6'],
-            'participant' => ['required', 'array'],
-            'participant.full_name' => ['required', 'string', 'max:255'],
-            'participant.email' => ['required', 'email', 'max:255'],
-            'answers' => ['required', 'array', 'min:1'],
-            'answers.*.question_id' => [
+            'quiz_password'              => ['required', 'string', 'size:6'],
+            'participant'                => ['required', 'array'],
+            'participant.full_name'      => ['required', 'string', 'max:255'],
+            'participant.email'          => ['required', 'email', 'max:255'],
+            'answers'                    => ['required', 'array', 'min:1'],
+            'answers.*.question_id'      => [
                 'required',
                 'integer',
-                Rule::exists('questions', 'id')->where(function ($query) use ($quizId): void {
-                    if ($quizId !== null) {
-                        $query->where('quiz_id', $quizId);
-                    }
-                }),
+                Rule::exists('questions', 'id')->where('quiz_id', $quiz->id),
             ],
             'answers.*.option_answer_id' => ['nullable', 'integer', Rule::exists('option_answers', 'id')],
-            'answers.*.text_answer' => ['nullable', 'string'],
+            'answers.*.text_answer'      => ['nullable', 'string'],
         ];
     }
 
@@ -53,37 +48,43 @@ class SubmitQuizRequest extends FormRequest
     {
         return [
             function (Validator $validator): void {
+                /** @var Quiz $quiz */
                 $quiz = $this->route('quiz');
+
+                // Check quiz status
+                if ($quiz->status !== QuizStatus::ACTIVE) {
+                    $validator->errors()->add('quiz', 'This quiz is not available for submission.');
+                    return;
+                }
+
+                // Check quiz password
                 $submittedPassword = strtoupper(trim((string) $this->input('quiz_password')));
-
-                if ($quiz instanceof Quiz && $submittedPassword !== (string) $quiz->password) {
+                if ($submittedPassword !== strtoupper(trim((string) $quiz->password))) {
                     $validator->errors()->add('quiz_password', 'The quiz password is incorrect.');
-
                     return;
                 }
 
                 $answers = $this->input('answers', []);
-
-                if (! is_array($answers)) {
+                if (!is_array($answers)) {
                     return;
                 }
 
                 foreach ($answers as $index => $answer) {
-                    if (! is_array($answer)) {
+                    if (!is_array($answer)) {
                         continue;
                     }
 
                     $optionAnswerId = $answer['option_answer_id'] ?? null;
-                    $textAnswer = trim((string) ($answer['text_answer'] ?? ''));
+                    $textAnswer     = trim((string) ($answer['text_answer'] ?? ''));
 
-                    if (! is_numeric($optionAnswerId) && $textAnswer === '') {
+                    if (!is_numeric($optionAnswerId) && $textAnswer === '') {
                         $validator->errors()->add(
                             "answers.{$index}",
                             'Each answer must include option_answer_id or text_answer.'
                         );
                     }
 
-                    if (! is_numeric($optionAnswerId) || ! isset($answer['question_id']) || ! is_numeric($answer['question_id'])) {
+                    if (!is_numeric($optionAnswerId) || !isset($answer['question_id']) || !is_numeric($answer['question_id'])) {
                         continue;
                     }
 
@@ -92,7 +93,7 @@ class SubmitQuizRequest extends FormRequest
                         ->where('question_id', (int) $answer['question_id'])
                         ->exists();
 
-                    if (! $belongsToQuestion) {
+                    if (!$belongsToQuestion) {
                         $validator->errors()->add(
                             "answers.{$index}.option_answer_id",
                             'The selected option answer does not belong to the provided question.'

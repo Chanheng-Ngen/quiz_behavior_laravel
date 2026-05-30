@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\GetQuizSubmissionRequest;
 use App\Http\Requests\SubmitQuizRequest;
 use App\Http\Resources\QuizSubmissionResource;
 use App\Models\Participant;
@@ -16,37 +15,37 @@ class ParticipantQuizController extends Controller
     public function submit(SubmitQuizRequest $request, Quiz $quiz): JsonResponse
     {
         $participantPayload = $request->participantPayload();
-        $answerPayloads = $request->answerPayloads();
+        $answerPayloads     = $request->answerPayloads();
+        $validQuestionIds   = $quiz->questions()->pluck('id');
 
-        DB::transaction(function () use ($participantPayload, $answerPayloads, $quiz): void {
+        DB::transaction(function () use ($participantPayload, $answerPayloads, $validQuestionIds): void {
             $participant = Participant::query()->updateOrCreate(
                 ['email' => $participantPayload['email']],
                 ['full_name' => $participantPayload['full_name']]
             );
 
-            $questionIds = $quiz->questions()->pluck('id');
-
             SubmissionAnswers::query()
                 ->where('participant_id', $participant->id)
-                ->whereIn('question_id', $questionIds)
+                ->whereIn('question_id', $validQuestionIds)
                 ->delete();
 
-            foreach ($answerPayloads as $answerPayload) {
-                SubmissionAnswers::query()->create([
-                    'participant_id' => $participant->id,
-                    'question_id' => $answerPayload['question_id'],
-                    'option_answer_id' => $answerPayload['option_answer_id'] ?? null,
-                    'text_answer' => $answerPayload['text_answer'] ?? null,
-                ]);
-            }
+            $records = collect($answerPayloads)->map(fn($answerPayload) => [
+                'participant_id'   => $participant->id,
+                'question_id'      => $answerPayload['question_id'],
+                'option_answer_id' => $answerPayload['option_answer_id'] ?? null,
+                'text_answer'      => $answerPayload['text_answer'] ?? null,
+                'created_at'       => now(),
+                'updated_at'       => now(),
+            ])->toArray();
+
+            SubmissionAnswers::query()->insert($records);
         });
 
         return response()->json([
-            'result' => true,
+            'result'  => true,
             'message' => 'Quiz submitted successfully.',
         ], 201);
     }
-
     public function showSubmission(Quiz $quiz, int $participantId): JsonResponse
     {
         $participant = Participant::query()->find($participantId);
@@ -55,10 +54,10 @@ class ParticipantQuizController extends Controller
             return response()->json([
                 'result'  => false,
                 'message' => 'Participant not found.',
-            ]);
+            ], 404);
         }
 
-        $quiz->loadMissing(['questions.questionType', 'questions.optionAnswers']);
+        $quiz->loadMissing(['questions.questionType', 'questions.optionAnswers', 'questions.images']);
 
         $answers = SubmissionAnswers::query()
             ->where('participant_id', $participant->id)
@@ -66,7 +65,6 @@ class ParticipantQuizController extends Controller
             ->with(['optionAnswer:id,content,is_correct,question_id'])
             ->get()
             ->keyBy('question_id');
-
         if ($answers->isEmpty()) {
             return response()->json([
                 'result'  => false,

@@ -9,6 +9,7 @@ class Cheat extends Model
     protected $fillable = [
         'name',
         'participant_id',
+        'quiz_id',
     ];
 
     public function participant()
