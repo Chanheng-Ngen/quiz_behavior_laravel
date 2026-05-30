@@ -47,16 +47,14 @@ class ParticipantQuizController extends Controller
         ], 201);
     }
 
-    public function showSubmission(GetQuizSubmissionRequest $request, Quiz $quiz): JsonResponse
+    public function showSubmission(Quiz $quiz, int $participantId): JsonResponse
     {
-        $email = $request->validated()['email'];
-
-        $participant = Participant::query()->where('email', $email)->first();
+        $participant = Participant::query()->find($participantId);
 
         if ($participant === null) {
             return response()->json([
-                'result' => false,
-                'message' => 'No submission found for this quiz.',
+                'result'  => false,
+                'message' => 'Participant not found.',
             ]);
         }
 
@@ -71,18 +69,18 @@ class ParticipantQuizController extends Controller
 
         if ($answers->isEmpty()) {
             return response()->json([
-                'result' => false,
+                'result'  => false,
                 'message' => 'No submission found for this quiz.',
             ]);
         }
 
         return response()->json([
-            'result' => true,
+            'result'  => true,
             'message' => 'Quiz submission retrieved successfully.',
-            'data' => new QuizSubmissionResource([
+            'data'    => new QuizSubmissionResource([
                 'participant' => $participant,
-                'quiz' => $quiz,
-                'answers' => $answers,
+                'quiz'        => $quiz,
+                'answers'     => $answers,
             ]),
         ]);
     }

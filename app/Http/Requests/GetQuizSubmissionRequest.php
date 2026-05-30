@@ -23,7 +23,7 @@ class GetQuizSubmissionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email', 'max:255'],
+            'participant_id' => ['required', 'exists:participants,id'],
         ];
     }
 }
