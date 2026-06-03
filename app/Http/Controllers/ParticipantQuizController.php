@@ -43,6 +43,7 @@ class ParticipantQuizController extends Controller
 
         return response()->json([
             'result'  => true,
+            'data' => $participant->id,
             'message' => 'Quiz submitted successfully.',
         ], 201);
     }
