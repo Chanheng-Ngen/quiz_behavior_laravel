@@ -17,8 +17,8 @@ class ParticipantQuizController extends Controller
         $participantPayload = $request->participantPayload();
         $answerPayloads     = $request->answerPayloads();
         $validQuestionIds   = $quiz->questions()->pluck('id');
-
-        DB::transaction(function () use ($participantPayload, $answerPayloads, $validQuestionIds): void {
+         $participant = null; 
+        DB::transaction(function () use ($participantPayload, $answerPayloads, $validQuestionIds, &$participant): void {
             $participant = Participant::query()->updateOrCreate(
                 ['email' => $participantPayload['email']],
                 ['full_name' => $participantPayload['full_name']]
@@ -43,7 +43,7 @@ class ParticipantQuizController extends Controller
 
         return response()->json([
             'result'  => true,
-            'data' => $participant->id,
+            'participant_id' => $participant->id,
             'message' => 'Quiz submitted successfully.',
         ], 201);
     }
