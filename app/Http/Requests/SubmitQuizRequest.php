@@ -38,6 +38,8 @@ class SubmitQuizRequest extends FormRequest
             ],
             'answers.*.option_answer_id' => ['nullable', 'integer', Rule::exists('option_answers', 'id')],
             'answers.*.text_answer'      => ['nullable', 'string'],
+            'time_spent_seconds'         => ['nullable', 'integer', 'min:0'],
+            'is_auto_submitted'          => ['nullable', 'boolean'],
         ];
     }
 

@@ -25,8 +25,13 @@ class UpdateQuizRequest extends FormRequest
         return [
             'title' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'set_time_limit' => ['nullable', 'integer', 'min:1'],
+            'set_time_limit' => ['nullable', 'integer', 'min:0'],
             'status' => ['nullable', 'string', 'in:active,draft,closed'],
+            'shuffle_questions' => ['nullable', 'boolean'],
+            'show_results_immediately' => ['nullable', 'boolean'],
+            'allow_answer_review' => ['nullable', 'boolean'],
+            'enable_anti_cheat' => ['nullable', 'boolean'],
+            'max_violations' => ['nullable', 'integer', 'in:2,3,5'],
         ];
     }
 }

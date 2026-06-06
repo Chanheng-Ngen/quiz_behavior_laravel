@@ -16,7 +16,6 @@ class QuestionController extends Controller
 {
     public function indexByQuiz(Quiz $quiz_id): JsonResponse
     {
-        $this->authorize('view', $quiz_id);
         $questions = $quiz_id->questions()
             ->with(['questionType', 'optionAnswers', 'images'])
             ->get();

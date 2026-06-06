@@ -12,6 +12,13 @@ class SubmissionAnswers extends Model
         'question_id',
         'option_answer_id',
         'text_answer',
+        'earned_points',
+        'feedback',
+        'is_graded',
+    ];
+
+    protected $casts = [
+        'is_graded' => 'boolean',
     ];
 
     public function participant(): BelongsTo

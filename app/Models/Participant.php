@@ -21,4 +21,9 @@ class Participant extends Model
     {
         return $this->hasMany(SubmissionAnswers::class);
     }
+
+    public function submissions()
+    {
+        return $this->hasMany(Submission::class);
+    }
 }

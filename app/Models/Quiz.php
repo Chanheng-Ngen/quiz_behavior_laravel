@@ -19,6 +19,12 @@ class Quiz extends Model
         'password',
         'status',
         'creator_id',
+        'shuffle_questions',
+        'show_results_immediately',
+        'allow_answer_review',
+        'enable_anti_cheat',
+        'max_violations',
+        'allow_multiple_submissions',
     ];
 
     protected $attributes = [
@@ -26,7 +32,12 @@ class Quiz extends Model
     ];
 
     protected $casts = [
-        'status' => QuizStatus::class
+        'status' => QuizStatus::class,
+        'shuffle_questions' => 'boolean',
+        'show_results_immediately' => 'boolean',
+        'allow_answer_review' => 'boolean',
+        'enable_anti_cheat' => 'boolean',
+        'allow_multiple_submissions' => 'boolean',
     ];
 
     public function creator(): BelongsTo
@@ -37,5 +48,10 @@ class Quiz extends Model
     public function questions(): HasMany
     {
         return $this->hasMany(Question::class);
+    }
+
+    public function submissions(): HasMany
+    {
+        return $this->hasMany(Submission::class);
     }
 }

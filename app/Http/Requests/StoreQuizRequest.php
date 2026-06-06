@@ -27,8 +27,13 @@ class StoreQuizRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'set_time_limit' => ['nullable', 'integer', 'min:1'],
+            'set_time_limit' => ['nullable', 'integer', 'min:0'],
             'status' => ['nullable', 'string', new Enum(QuizStatus::class)],
+            'shuffle_questions' => ['nullable', 'boolean'],
+            'show_results_immediately' => ['nullable', 'boolean'],
+            'allow_answer_review' => ['nullable', 'boolean'],
+            'enable_anti_cheat' => ['nullable', 'boolean'],
+            'max_violations' => ['nullable', 'integer', 'in:2,3,5'],
         ];
     }
 }

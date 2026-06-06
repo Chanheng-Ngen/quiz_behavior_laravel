@@ -35,7 +35,11 @@ class QuizSubmissionResource extends JsonResource
 
             $questionScore = (float) ($question->score ?? 0);
             $isCorrect = $answer?->optionAnswer?->is_correct;
-            $earned = $isCorrect === true ? $questionScore : 0.0;
+            
+            // Use earned_points if manually graded, otherwise use automatic calculation
+            $earned = $answer?->earned_points !== null 
+                ? (float) $answer->earned_points 
+                : ($isCorrect === true ? $questionScore : 0.0);
 
             $earnedScore += $earned;
 
@@ -49,27 +53,41 @@ class QuizSubmissionResource extends JsonResource
                 ->firstWhere('is_correct', true);
 
             return [
+                'id' => $answer?->id,
                 'question_id' => $question->id,
-                'question' => $question->content,
+                'content' => $question->content,
                 'question_type' => $question->questionType?->name,
                 'score' => $questionScore,
-                'answer' => [
-                    'option_answer_id' => $answer?->option_answer_id,
-                    'option_answer' => $answer?->optionAnswer?->content,
-                    'text_answer' => $answer?->text_answer,
-                ],
+                'option_answer' => $answer?->optionAnswer ? [
+                    'id' => $answer->optionAnswer->id,
+                    'content' => $answer->optionAnswer->content,
+                ] : null,
+                'text_answer' => $answer?->text_answer,
                 'options' => $options,
-                'correct_answer' => $correctAnswer === null ? null : [
+                'correct_option_answer' => $correctAnswer === null ? null : [
                     'id' => $correctAnswer->id,
                     'content' => $correctAnswer->content,
                 ],
                 'is_correct' => $isCorrect,
-                'earned_score' => $earned,
+                'earned_points' => $answer?->earned_points,
+                'feedback' => $answer?->feedback,
+                'is_graded' => $answer?->is_graded,
             ];
         })->values();
 
+        // Recalculate final earned score
+        $finalEarnedScore = 0.0;
+        foreach ($answerDetails as $answer) {
+            if ($answer['earned_points'] !== null) {
+                $finalEarnedScore += (float)$answer['earned_points'];
+            } else {
+                $finalEarnedScore += $answer['is_correct'] ? (float)$answer['score'] : 0.0;
+            }
+        }
+
         return [
             'participant' => [
+                'id' => $participant->id,
                 'full_name' => $participant->full_name,
                 'email' => $participant->email,
             ],
@@ -77,11 +95,12 @@ class QuizSubmissionResource extends JsonResource
                 'id' => $quiz->id,
                 'title' => $quiz->title,
                 'description' => $quiz->description,
+                'questions' => $answerDetails,
             ],
             'score' => [
-                'earned' => $earnedScore,
+                'earned' => $finalEarnedScore,
                 'total' => $totalScore,
-                'percentage' => $totalScore > 0 ? round(($earnedScore / $totalScore) * 100, 2) : 0.0,
+                'percentage' => $totalScore > 0 ? round(($finalEarnedScore / $totalScore) * 100, 2) : 0.0,
             ],
             'answers' => $answerDetails,
         ];

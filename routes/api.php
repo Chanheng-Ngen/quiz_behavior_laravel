@@ -39,7 +39,6 @@ Route::prefix('auth')->group(function (): void {
 
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::apiResource('quizzes', QuizController::class);
-    Route::get('quizzes/questions/{quiz_id}', [QuestionController::class, 'indexByQuiz']);
     Route::post('quizzes/questions/{quiz_id}', [QuestionController::class, 'store']);
     Route::apiResource('questions', QuestionController::class)->except('store');
     Route::post('questions/images/{question_id}', [ImageController::class, 'uploadImage']);
@@ -47,8 +46,16 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::delete('questions/{question_id}/images/{id}', [ImageController::class, 'deleteImage']);
     Route::get('quizzes/{quiz}/cheats/summary', [CheatController::class, 'summary']);
     Route::get('quizzes/{quiz}/participants/{participant}/cheats', [CheatController::class, 'indexByParticipant']);
+    Route::get('quizzes/{quiz}/submissions', [ParticipantQuizController::class, 'getSubmissions']);
+    Route::get('quizzes/{quiz}/stats', [ParticipantQuizController::class, 'getQuizStats']);
+    Route::get('quizzes/{quiz}/score-distribution', [ParticipantQuizController::class, 'getScoreDistribution']);
+    Route::get('quizzes/{quiz}/top-performers', [ParticipantQuizController::class, 'getTopPerformers']);
+    Route::post('quizzes/{quiz}/submissions/{participantId}/update-grades', [ParticipantQuizController::class, 'updateGrades']);
+    Route::post('quizzes/{quiz}/submissions/{participantId}/reset-grades', [ParticipantQuizController::class, 'resetGrades']);
 });
+Route::get('quizzes/questions/{quiz_id}', [QuestionController::class, 'indexByQuiz']);
 Route::get('quizzes/join-quiz/{password_quiz}', [QuizController::class, 'findQuizByPassword']);
+Route::get('quizzes/{quiz}/check-status/{email}', [ParticipantQuizController::class, 'checkQuizStatus']);
 Route::post('quizzes/{quiz}/submit', [ParticipantQuizController::class, 'submit'])
     ->middleware('throttle:30,1');
 Route::get('quizzes/{quiz}/submissions/{participantId}', [ParticipantQuizController::class, 'showSubmission']);
